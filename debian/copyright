@@ -1,0 +1,98 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: gxde-dock-weather
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     .gitignore
+           Fahrenheit.png
+           FashionMode.png
+           IconTheme.png
+           README.md
+           TemperatureUnit.png
+           forcastwidget.cpp
+           forcastwidget.h
+           icon/Default/01d.png
+           icon/Default/01n.png
+           icon/Default/02d.png
+           icon/Default/02n.png
+           icon/Default/03d.png
+           icon/Default/03n.png
+           icon/Default/04d.png
+           icon/Default/04n.png
+           icon/Default/09d.png
+           icon/Default/09n.png
+           icon/Default/10d.png
+           icon/Default/10n.png
+           icon/Default/11d.png
+           icon/Default/11n.png
+           icon/Default/13d.png
+           icon/Default/13n.png
+           icon/Default/50d.png
+           icon/Default/50n.png
+           icon/Default/na.png
+           icon/Flat/01d.png
+           icon/Flat/01n.png
+           icon/Flat/02d.png
+           icon/Flat/02n.png
+           icon/Flat/03d.png
+           icon/Flat/03n.png
+           icon/Flat/04d.png
+           icon/Flat/04n.png
+           icon/Flat/09d.png
+           icon/Flat/09n.png
+           icon/Flat/10d.png
+           icon/Flat/10n.png
+           icon/Flat/11d.png
+           icon/Flat/11n.png
+           icon/Flat/13d.png
+           icon/Flat/13n.png
+           icon/Flat/50d.png
+           icon/Flat/50n.png
+           icon/Flat/README.md
+           icon/Flat/na.png
+           icon/Simple/01d.png
+           icon/Simple/01n.png
+           icon/Simple/02d.png
+           icon/Simple/02n.png
+           icon/Simple/03d.png
+           icon/Simple/03n.png
+           icon/Simple/04d.png
+           icon/Simple/04n.png
+           icon/Simple/09d.png
+           icon/Simple/09n.png
+           icon/Simple/10d.png
+           icon/Simple/10n.png
+           icon/Simple/11d.png
+           icon/Simple/11n.png
+           icon/Simple/13d.png
+           icon/Simple/13n.png
+           icon/Simple/50d.png
+           icon/Simple/50n.png
+           icon/Simple/na.png
+           icon/custom.png
+           install.sh
+           preview.png
+           translations/translate_generation.sh
+           translations/translate_update.sh
+           uninstall.sh
+           weather.json
+           weather.pro
+           weatherplugin.cpp
+           weatherplugin.h
+           weatherwidget.cpp
+           weatherwidget.h
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+#----------------------------------------------------------------------------
+# xml and html files (skipped):
+#         res.qrc
+#         weather.pro.user
+#         translations/zh_CN.qm
+#         translations/zh_CN.ts
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.
