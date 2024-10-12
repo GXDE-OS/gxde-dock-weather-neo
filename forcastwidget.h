@@ -16,8 +16,24 @@ public:
 private:
     QVBoxLayout *m_centralLayout;
     QWidget *m_centralWidget;
-    QLabel *labelCity, *labelRT, *labelDate[6], *labelWImg[6], *labelTemp[6];
+    static const int FORECAST_DAYS = 5;
+    static const int CURRENT_WEATHER_INDEX = 0;
+
     QSettings m_settings;
+    QLabel *labelWImg[FORECAST_DAYS + 1];
+    QLabel *labelTemp[FORECAST_DAYS + 1];
+    QLabel *labelDate[FORECAST_DAYS + 1];
+    QLabel *labelHumidity;
+    QLabel *labelSunset;
+    QLabel *labelWind;
+    QLabel *labelUpdateTime;
+    QLabel *labelCity;
+
+    QString getIconPath(const QString &iconName);
+    void setupUI();
+    QLayout* setupCurrentWeather();
+    QLayout* setupForecast();
+
 
 public slots:
     void updateWeather();

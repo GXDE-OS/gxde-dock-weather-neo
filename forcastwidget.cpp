@@ -37,59 +37,176 @@ QJsonObject loadCityTranslations()
     return jsonDoc.object();
 }
 
-// 构造函数，初始化天气预报窗口部件
 ForcastWidget::ForcastWidget(QWidget *parent)
     : QWidget(parent),
-      m_settings("deepin", "dde-dock-HTYWeather")  // 初始化设置对象，用于存储用户设置
+      m_settings("deepin", "dde-dock-HTYWeather")
 {
-    setFixedWidth(300);  // 设置窗口宽度
-    QGridLayout *layout = new QGridLayout;  // 创建网格布局
-    for (int i=0; i<6; i++) {
-        labelWImg[i] = new QLabel;  // 创建标签用于显示天气图标
+    setupUI();
+}
 
-        // 设置默认天气图标
-        QString icon_path = ":icon/Default/na.png";
-        QString iconTheme = m_settings.value("IconTheme","").toString();
-        if(iconTheme != ""){
-            // 如果设置了图标主题，检查图标路径是否存在
-            if(!iconTheme.startsWith("/")){
-                icon_path = ":icon/" + iconTheme + "/na.png";
-            }else{
-                QString icon_path1 = iconTheme + "/na.png";
-                QFile file(icon_path1);
-                if(file.exists()){
-                    icon_path = icon_path1;
-                }
+void ForcastWidget::setupUI()
+{
+//    setFixedWidth(300);
+    setStyleSheet(" border-radius: 15px;");
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(10);
+    mainLayout->setContentsMargins(15, 15, 15, 15);
+
+    QLayout *currentWeatherLayout = setupCurrentWeather();
+    mainLayout->addLayout(currentWeatherLayout);
+
+    // Add separator line
+    QFrame *line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setStyleSheet("background-color: rgba(255,255,255,0.3);");
+    mainLayout->addWidget(line);
+
+    QLayout *forecastLayout = setupForecast();
+
+    mainLayout->addLayout(forecastLayout);
+    setLayout(mainLayout);
+}
+
+QLayout* ForcastWidget::setupCurrentWeather()
+{
+    QGridLayout *currentWeatherLayout = new QGridLayout;
+
+    labelWImg[0] = new QLabel;
+    labelTemp[0] = new QLabel;
+    labelDate[0] = new QLabel;
+
+    QString icon_path = getIconPath("na");
+    QPixmap pixmap(icon_path);
+    labelWImg[0]->setPixmap(pixmap.scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    labelWImg[0]->setFixedSize(90, 90);
+    labelWImg[0]->setAlignment(Qt::AlignCenter);
+    labelWImg[0]->setStyleSheet("border-radius: 10px;");
+
+    labelTemp[0]->setText("多云 25°C");
+    labelTemp[0]->setStyleSheet("color: white; font-size: 32px; font-weight: bold;");
+    labelTemp[0]->setAlignment(Qt::AlignCenter);
+
+    labelDate[0]->setText("2024/10/12");
+    labelDate[0]->setStyleSheet("color: white; font-size: 48px;");
+
+    labelCity = new  QLabel;
+    labelCity->setStyleSheet("color: white; font-size: 48px;");
+
+
+//    QVBoxLayout *imgAndTempLayout = new QVBoxLayout;
+//    imgAndTempLayout->addWidget(labelWImg[0]);
+//    imgAndTempLayout->addWidget(labelTemp[0]);
+
+//    QHBoxLayout *currentInfoLayout = new QHBoxLayout;
+//    currentInfoLayout->addWidget(labelDate[CURRENT_WEATHER_INDEX]);
+//    currentInfoLayout->addWidget(labelTemp[CURRENT_WEATHER_INDEX]);
+//    currentInfoLayout->setAlignment(Qt::AlignVCenter);
+
+//    labelHumidity = new QLabel(this);
+//    labelSunset = new QLabel(this);
+//    labelWind = new QLabel(this);
+//    labelUpdateTime = new QLabel(this);
+
+//    QString infoLabelStyle = "color: white; font-size: 12px;";
+//    labelHumidity->setStyleSheet(infoLabelStyle);
+//    labelSunset->setStyleSheet(infoLabelStyle);
+//    labelWind->setStyleSheet(infoLabelStyle);
+//    labelUpdateTime->setStyleSheet(infoLabelStyle);
+
+
+
+    // 添加原有的部件
+    currentWeatherLayout->addWidget(labelCity, 0, 0);
+    currentWeatherLayout->addWidget(labelDate[0], 1, 0);
+    currentWeatherLayout->addWidget(labelWImg[0], 0, 1);
+    currentWeatherLayout->addWidget(labelTemp[0], 1, 1);
+
+    // 创建并添加一个水平空间
+    QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    currentWeatherLayout->addItem(horizontalSpacer, 0, 2, 2, 1);  // 跨越两行
+
+    // 设置列拉伸因子，使空间吸收多余的水平空间
+    currentWeatherLayout->setColumnStretch(0, 0);  // 第一列不拉伸
+    currentWeatherLayout->setColumnStretch(1, 0);  // 第二列不拉伸
+    currentWeatherLayout->setColumnStretch(2, 1);  // 第三列（spacer）拉伸
+
+    // 可选：调整部件之间的间距
+    currentWeatherLayout->setHorizontalSpacing(30);
+    currentWeatherLayout->setVerticalSpacing(5);
+
+    // 设置布局的对齐方式
+    currentWeatherLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+//    currentWeatherLayout->addWidget(labelHumidity, 0, 2);
+//    currentWeatherLayout->addWidget(labelSunset, 0, 2);
+//    currentWeatherLayout->addWidget(labelWind, 1, 3);
+//    currentWeatherLayout->addWidget(labelUpdateTime, 1, 3);
+
+
+    return currentWeatherLayout;
+}
+
+
+QLayout* ForcastWidget::setupForecast()
+{
+    QLayout *forecastLayout = new QHBoxLayout;
+
+    for (int i = 1; i <= FORECAST_DAYS; i++) {
+
+        QVBoxLayout *itemLayout = new QVBoxLayout;
+        labelWImg[i] = new QLabel;
+        labelTemp[i] = new QLabel;
+        labelDate[i] = new QLabel;
+
+        QString icon_path = getIconPath("na");
+        QPixmap pixmap(icon_path);
+        labelWImg[i]->setPixmap(pixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        labelWImg[i]->setFixedSize(50, 50);
+        labelWImg[i]->setAlignment(Qt::AlignLeft);
+        labelWImg[i]->setStyleSheet("border-radius: 5px;");
+
+        labelTemp[i]->setText("25°C");
+        labelTemp[i]->setStyleSheet("color: white; font-size: 16px;");
+        labelTemp[i]->setAlignment(Qt::AlignVCenter);
+
+        labelDate[i]->setText("01-01 Mon");
+        labelDate[i]->setStyleSheet("color: rgba(255,255,255,0.8); font-size: 14px;");
+        labelDate[i]->setAlignment(Qt::AlignVCenter);
+
+        itemLayout->addWidget(labelDate[i]);
+        itemLayout->addWidget(labelWImg[i]);
+        itemLayout->addWidget(labelTemp[i]);
+        itemLayout->addStretch();
+        itemLayout->setAlignment(Qt::AlignVCenter);
+
+        // 创建一个 QWidget 作为容器
+        QWidget *containerWidget = new QWidget;
+        containerWidget->setLayout(itemLayout);
+
+        forecastLayout->addWidget(containerWidget);
+    }
+    return forecastLayout;
+}
+
+
+
+QString ForcastWidget::getIconPath(const QString &iconName)
+{
+    QString icon_path = ":icon/Default/" + iconName + ".png";
+    QString iconTheme = m_settings.value("IconTheme","").toString();
+    if (!iconTheme.isEmpty()) {
+        if (!iconTheme.startsWith("/")) {
+            icon_path = ":icon/" + iconTheme + "/" + iconName + ".png";
+        } else {
+            QString icon_path1 = iconTheme + "/" + iconName + ".png";
+            QFile file(icon_path1);
+            if (file.exists()) {
+                icon_path = icon_path1;
             }
         }
-
-        // 设置图标大小并添加到布局中
-        labelWImg[i]->setPixmap(QPixmap(icon_path).scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        labelWImg[i]->setAlignment(Qt::AlignCenter);
-        layout->addWidget(labelWImg[i],i,0);
-
-        // 创建用于显示温度的标签
-        labelTemp[i] = new QLabel("25°C");
-        labelTemp[i]->setAlignment(Qt::AlignCenter);
-        layout->addWidget(labelTemp[i],i,1);
-
-        // 设置第一个元素的样式
-        if (i==0) {
-            labelTemp[i]->setStyleSheet("color:white;font-size:20px;");
-            labelDate[i] = new QLabel("City");  // 用于显示城市名称
-            labelDate[i]->setStyleSheet("color:white;font-size:20px;");
-        } else {
-            // 其他元素的样式
-            labelTemp[i]->setStyleSheet("color:white;font-size:12px;");
-            labelDate[i] = new QLabel("01-01 Mon");  // 用于显示日期
-            labelDate[i]->setStyleSheet("color:white;font-size:12px;");
-        }
-
-        labelDate[i]->setAlignment(Qt::AlignCenter);
-        layout->addWidget(labelDate[i],i,2);
     }
-
-    setLayout(layout);  // 应用布局到窗口部件
+    return icon_path;
 }
 
 // 更新天气信息函数
@@ -165,6 +282,7 @@ void ForcastWidget::updateWeather()
                 for (int i=0; i<list.size(); i++) {
                     QDateTime date = QDateTime::fromMSecsSinceEpoch(list[i].toObject().value("dt").toInt()*1000L, Qt::UTC);
                     QString sdate = date.toString("MM-dd ddd");  // 格式化日期
+                    QString today = date.toString("MM-dd");  // 格式化日期
                     QString dt_txt = list[i].toObject().value("dt_txt").toString();
                     double temp = list[i].toObject().value("main").toObject().value("temp").toDouble() - 273.15;  // 转换温度为摄氏度
                     stemp = QString::number(qRound(temp)) + "°C";
@@ -205,9 +323,16 @@ void ForcastWidget::updateWeather()
                             // 更新主天气信息
                             QPixmap pixmap(icon_path);
                             labelWImg[0]->setPixmap(pixmap.scaled(80,80,Qt::KeepAspectRatio,Qt::SmoothTransformation));
-                            labelTemp[0]->setText(stemp);
+                            labelTemp[0]->setText(weather + " " + stemp);
+                            labelDate[0]->setText(today);
 
-                            labelDate[0]->setText(cityTranslations[JO_city.value("name").toString()].toString());
+                            labelCity->setText(cityTranslations[JO_city.value("name").toString()].toString());
+
+//                            // 更新新添加的信息
+//                            labelHumidity->setText("湿度: " + humidity);
+//                            labelSunset->setText("日落: " + time_sunset.toString("hh:mm"));
+//                            labelWind->setText(wind);
+//                            labelUpdateTime->setText("更新: " + currentDateTime.toString("HH:mm:ss"));
 
                             // 更新未来天气预报
                             labelWImg[1]->setPixmap(QPixmap(icon_path).scaled(50,50,Qt::KeepAspectRatio,Qt::SmoothTransformation));

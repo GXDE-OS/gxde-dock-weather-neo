@@ -48,7 +48,6 @@ private:
     ForcastWidget *forcastApplet;
     QLineEdit *lineEdit_iconPath;
     void MBAbout();
-    void showMap();
     void showLog();
     void set();
 

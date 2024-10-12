@@ -126,11 +126,6 @@ const QString WeatherPlugin::itemContextMenu(const QString &itemKey)
     refresh["isActive"] = true;
     items.push_back(refresh);
 
-    QMap<QString, QVariant> satalite;
-    satalite["itemId"] = "map";
-    satalite["itemText"] = "云图";
-    satalite["isActive"] = true;
-    items.push_back(satalite);
 
     QMap<QString, QVariant> log;
     log["itemId"] = "log";
@@ -157,8 +152,6 @@ void WeatherPlugin::invokedMenuItem(const QString &itemKey, const QString &menuI
     }else if(menuId == "refresh"){
         forcastApplet->updateWeather();
         m_refershTimer->start();
-    }else if(menuId == "map"){
-        showMap();
     }else if(menuId == "log"){
         showLog();
     }
@@ -181,37 +174,6 @@ void WeatherPlugin::weatherNow(QString weather, QString temp, QString stip, QPix
     m_tipsLabel->setText(stip);
 }
 
-void WeatherPlugin::showMap()
-{
-    QLabel *label = new QLabel;
-    label->setWindowTitle("Clouds Map");
-    label->setWindowFlags(Qt::Tool);
-    QString appid = "8f3c852b69f0417fac76cd52c894ba63";
-    QString surl = "https://tile.openweathermap.org/map/clouds_new/10/" + m_settings.value("lat","").toString() + "/" + m_settings.value("lon","").toString()+ ".png?appid=" + appid + "&lang=zh_cn";
-
-    QDateTime currentDateTime = QDateTime::currentDateTime();
-    QString log = currentDateTime.toString("yyyy/MM/dd HH:mm:ss") + " : " + surl;
-    QString path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/HTYWeather.log";
-    QFile file(path);
-    if (file.open(QFile::WriteOnly | QFile::Append)) {
-        file.write(log.toUtf8());
-        file.close();
-    }
-
-    QNetworkAccessManager manager;
-    QEventLoop loop;
-    QNetworkReply *reply;
-    reply = manager.get(QNetworkRequest(QUrl(surl)));
-    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-    QByteArray BA = reply->readAll();
-    QPixmap pixmap;
-    pixmap.loadFromData(BA);
-    label->resize(pixmap.size());
-    label->move((QApplication::desktop()->width() - label->width())/2, (QApplication::desktop()->height() - label->height())/2);
-    label->setPixmap(pixmap);
-    label->show();
-}
 
 void WeatherPlugin::showLog()
 {
