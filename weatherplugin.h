@@ -1,7 +1,7 @@
 #ifndef WEATHERPlugin_H
 #define WEATHERPlugin_H
 
-#include "dde-dock/pluginsiteminterface.h"
+#include "gxde-dock/pluginsiteminterface.h"
 #include "weatherwidget.h"
 #include "forcastwidget.h"
 #include <QTimer>

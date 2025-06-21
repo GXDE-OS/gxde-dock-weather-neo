@@ -1,3 +1,3 @@
 #!/bin/bash
-sudo rm /usr/lib/dde-dock/plugins/libHTYWeather.so
-killall dde-dock
+sudo rm /usr/lib/gxde-dock/plugins/libHTYWeather.so
+killall gxde-dock

@@ -1,4 +1,4 @@
-#include "dde-dock/constants.h"
+#include "gxde-dock/constants.h"
 #include "weatherwidget.h"
 #include <QApplication>
 #include <QPainter>
@@ -8,7 +8,7 @@
 
 WeatherWidget::WeatherWidget(QWidget *parent)
     : QWidget(parent),
-    m_settings("deepin", "dde-dock-HTYWeather")
+    m_settings("deepin", "gxde-dock-HTYWeather")
 {
     sw = "Weather";
     temp = "Temp";

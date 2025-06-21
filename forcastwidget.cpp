@@ -39,7 +39,7 @@ QJsonObject loadCityTranslations()
 
 ForcastWidget::ForcastWidget(QWidget *parent)
     : QWidget(parent),
-      m_settings("deepin", "dde-dock-HTYWeather")
+      m_settings("deepin", "gxde-dock-HTYWeather")
 {
     setupUI();
 }

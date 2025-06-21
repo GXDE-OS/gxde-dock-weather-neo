@@ -1,4 +1,4 @@
-#include(../dde-dock/interfaces/interfaces.pri)
+#include(../gxde-dock/interfaces/interfaces.pri)
 
 QT              += widgets network #svg
 TEMPLATE         = lib
@@ -18,7 +18,7 @@ SOURCES += \
     weatherwidget.cpp \
     forcastwidget.cpp
 
-target.path = $${PREFIX}/lib/dde-dock/plugins/
+target.path = $${PREFIX}/lib/gxde-dock/plugins/
 INSTALLS += target
 
 RESOURCES += res.qrc

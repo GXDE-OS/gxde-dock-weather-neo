@@ -4,7 +4,7 @@ Deepin Linux DDE-Dock weather forcast plugin.
 install：./install.sh  
 uninstall：./uninstall.sh  
 ### Build Dependences
-Debian: `apt install dde-dock-dev qt5-default libdtkwidget-dev`
+Debian: `apt install gxde-dock-dev qt5-default libdtkwidget-dev`
 
 ![alt](preview.png)  
 ![alt](FashionMode.png)  

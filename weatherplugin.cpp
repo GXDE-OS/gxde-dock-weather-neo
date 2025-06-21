@@ -17,7 +17,7 @@ WeatherPlugin::WeatherPlugin(QObject *parent)
     : QObject(parent),
       m_tipsLabel(new QLabel),
       m_refershTimer(new QTimer(this)),
-      m_settings("deepin", "dde-dock-HTYWeather")
+      m_settings("deepin", "gxde-dock-HTYWeather")
 {
     m_tipsLabel->setObjectName("HTYWeather");
     m_tipsLabel->setStyleSheet("color:white; padding:0px 3px;");

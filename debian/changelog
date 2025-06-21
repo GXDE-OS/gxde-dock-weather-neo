@@ -1,5 +1,6 @@
-gxde-dock-weather (6.4.0gxde1) UNRELEASED; urgency=low
+gxde-dock-weather (6.4.1) UNRELEASED; urgency=low
 
   * 重新构建
+  * 调整依赖为 gxde-dock
 
- -- gfdgd_xi <3025613752@qq.com>  Sun, 16 Mar 2025 15:00:03 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Sat, 21 Jun 2025 22:29:08 +0800
