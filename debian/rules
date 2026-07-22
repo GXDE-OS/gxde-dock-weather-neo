@@ -8,4 +8,4 @@
 export QT_SELECT=qt6
 
 %:
-	dh $@
+	dh $@ --buildsystem=qmake6
