@@ -2,8 +2,8 @@
 
 QT              += widgets network #svg
 TEMPLATE         = lib
-CONFIG          += plugin c++11 link_pkgconfig
-PKGCONFIG       += dtkwidget
+CONFIG          += plugin c++17 link_pkgconfig
+PKGCONFIG       += dtk2widget
 
 TARGET           = HTYWeather
 DISTFILES       += weather.json

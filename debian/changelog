@@ -1,6 +1,7 @@
-gxde-dock-weather (6.4.1) UNRELEASED; urgency=low
+gxde-dock-weather (6.5.0) UNRELEASED; urgency=low
 
   * 重新构建
   * 调整依赖为 gxde-dock
+  * 迁移至 Qt6
 
- -- gfdgd_xi <3025613752@qq.com>  Sat, 21 Jun 2025 22:29:08 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Wed, 22 Jul 2026 21:19:30 +0800

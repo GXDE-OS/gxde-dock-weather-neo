@@ -272,15 +272,15 @@ void ForcastWidget::updateWeather()
                 m_settings.setValue("lon", lon);
 
                 // 提取日出和日落时间
-                QDateTime time_sunrise = QDateTime::fromMSecsSinceEpoch(JO_city.value("sunrise").toInt()*1000L, Qt::LocalTime);
-                QDateTime time_sunset = QDateTime::fromMSecsSinceEpoch(JO_city.value("sunset").toInt()*1000L, Qt::LocalTime);
+                QDateTime time_sunrise = QDateTime::fromMSecsSinceEpoch(JO_city.value("sunrise").toInt()*1000L, QTimeZone::systemTimeZone());
+                QDateTime time_sunset = QDateTime::fromMSecsSinceEpoch(JO_city.value("sunset").toInt()*1000L, QTimeZone::systemTimeZone());
 
                 QJsonArray list = JD.object().value("list").toArray();  // 获取天气列表数据
                 int r = 0;
 
                 // 遍历天气预报数据
                 for (int i=0; i<list.size(); i++) {
-                    QDateTime date = QDateTime::fromMSecsSinceEpoch(list[i].toObject().value("dt").toInt()*1000L, Qt::UTC);
+                    QDateTime date = QDateTime::fromMSecsSinceEpoch(list[i].toObject().value("dt").toInt()*1000L, QTimeZone::UTC);
                     QString sdate = date.toString("MM-dd ddd");  // 格式化日期
                     QString today = date.toString("MM-dd");  // 格式化日期
                     QString dt_txt = list[i].toObject().value("dt_txt").toString();

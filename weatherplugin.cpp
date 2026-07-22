@@ -1,6 +1,5 @@
-﻿#include "weatherplugin.h"
+#include "weatherplugin.h"
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -12,6 +11,8 @@
 #include <QFileDialog>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 
 WeatherPlugin::WeatherPlugin(QObject *parent)
     : QObject(parent),
@@ -202,8 +203,8 @@ void WeatherPlugin::set()
     hbox->addWidget(label);
     QLineEdit *lineEdit_city = new QLineEdit;
     lineEdit_city->setPlaceholderText("English Only");
-    QRegExp regExp("[a-zA-Z ]+$");
-    QValidator *validator = new QRegExpValidator(regExp, lineEdit_city);
+    QRegularExpression regExp("[a-zA-Z ]+$");
+    QValidator *validator = new QRegularExpressionValidator(regExp, lineEdit_city);
     lineEdit_city->setValidator(validator);
     lineEdit_city->setText(m_settings.value("city","").toString());
     hbox->addWidget(lineEdit_city);
