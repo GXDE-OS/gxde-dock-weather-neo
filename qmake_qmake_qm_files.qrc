@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="HTYWeather/i18n">
+<file alias="zh_CN.qm">/home/gfdgd_xi/Desktop/dde15/gxde-dock-weather-neo/.qm/zh_CN.qm</file>
+<file alias="en_US.qm">/home/gfdgd_xi/Desktop/dde15/gxde-dock-weather-neo/.qm/en_US.qm</file>
+</qresource>
+</RCC>

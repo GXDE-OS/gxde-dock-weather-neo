@@ -10,8 +10,8 @@ WeatherWidget::WeatherWidget(QWidget *parent)
     : QWidget(parent),
     m_settings("deepin", "gxde-dock-HTYWeather")
 {
-    sw = "Weather";
-    temp = "Temp";
+    sw = tr("Weather");
+    temp = tr("Temp");
     pixmap = QPixmap(":icon/Default/na.png");
 }
 

@@ -11,6 +11,21 @@
 #include <QJsonDocument>
 #include <QString>
 #include <QDebug>
+#include <QLocale>
+
+namespace {
+
+bool isChineseLocale()
+{
+    return QLocale::system().name().startsWith(QLatin1String("zh"), Qt::CaseInsensitive);
+}
+
+QString localizedDate(const QDateTime &date, const QString &format)
+{
+    return QLocale::system().toString(date, format);
+}
+
+}
 
 QJsonObject loadCityTranslations()
 {
@@ -83,7 +98,7 @@ QLayout* ForcastWidget::setupCurrentWeather()
     labelWImg[0]->setAlignment(Qt::AlignCenter);
     labelWImg[0]->setStyleSheet("border-radius: 10px;");
 
-    labelTemp[0]->setText("多云 25°C");
+    labelTemp[0]->setText(tr("Cloudy 25°C"));
     labelTemp[0]->setStyleSheet("color: white; font-size: 32px; font-weight: bold;");
     labelTemp[0]->setAlignment(Qt::AlignCenter);
 
@@ -170,7 +185,7 @@ QLayout* ForcastWidget::setupForecast()
         labelTemp[i]->setStyleSheet("color: white; font-size: 16px;");
         labelTemp[i]->setAlignment(Qt::AlignVCenter);
 
-        labelDate[i]->setText("01-01 Mon");
+        labelDate[i]->setText(tr("01-01 Mon"));
         labelDate[i]->setStyleSheet("color: rgba(255,255,255,0.8); font-size: 14px;");
         labelDate[i]->setAlignment(Qt::AlignVCenter);
 
@@ -240,11 +255,14 @@ void ForcastWidget::updateWeather()
         }
 
         // 发送信号显示当前天气信息
-        emit weatherNow("Weather", "Temp", currentDateTime.toString("yyyy/MM/dd HH:mm:ss") + "\nGetting weather of " + city + "," + country, QPixmap(icon_path));
+        emit weatherNow(tr("Weather"), tr("Temp"),
+                        currentDateTime.toString("yyyy/MM/dd HH:mm:ss") + "\n"
+                        + tr("Getting weather of %1, %2").arg(city, country), QPixmap(icon_path));
 
-        // 构建OpenWeatherMap API的URL
+        // 构建OpenWeatherMap API的URL；天气描述使用与界面一致的语言
         QString appid = "8f3c852b69f0417fac76cd52c894ba63";
-        surl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "," + country + "&appid=" + appid + "&lang=zh_cn";
+        surl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "," + country + "&appid=" + appid
+                + "&lang=" + (isChineseLocale() ? QStringLiteral("zh_cn") : QStringLiteral("en"));
 
         // 发送网络请求
         reply = manager.get(QNetworkRequest(QUrl(surl)));
@@ -258,7 +276,10 @@ void ForcastWidget::updateWeather()
 
         QJsonParseError JPE;
         QJsonDocument JD = QJsonDocument::fromJson(BA, &JPE);  // 解析JSON数据
-        QJsonObject cityTranslations = loadCityTranslations();
+        // city.json only contains Chinese city names
+        QJsonObject cityTranslations;
+        if (isChineseLocale())
+            cityTranslations = loadCityTranslations();
 
         if (JPE.error == QJsonParseError::NoError) {  // 确保解析无错误
             QString cod = JD.object().value("cod").toString();
@@ -281,8 +302,8 @@ void ForcastWidget::updateWeather()
                 // 遍历天气预报数据
                 for (int i=0; i<list.size(); i++) {
                     QDateTime date = QDateTime::fromMSecsSinceEpoch(list[i].toObject().value("dt").toInt()*1000L, QTimeZone::UTC);
-                    QString sdate = date.toString("MM-dd ddd");  // 格式化日期
-                    QString today = date.toString("MM-dd");  // 格式化日期
+                    QString sdate = localizedDate(date, QStringLiteral("MM-dd ddd"));  // 格式化日期
+                    QString today = localizedDate(date, QStringLiteral("MM-dd"));  // 格式化日期
                     QString dt_txt = list[i].toObject().value("dt_txt").toString();
                     double temp = list[i].toObject().value("main").toObject().value("temp").toDouble() - 273.15;  // 转换温度为摄氏度
                     stemp = QString::number(qRound(temp)) + "°C";
@@ -293,7 +314,7 @@ void ForcastWidget::updateWeather()
                     }
 
                     // 提取其他天气信息
-                    QString humidity = "湿度: " + QString::number(list[i].toObject().value("main").toObject().value("humidity").toInt()) + "%";
+                    QString humidity = tr("Humidity: %1%").arg(list[i].toObject().value("main").toObject().value("humidity").toInt());
                     QString weather = list[i].toObject().value("weather").toArray().at(0).toObject().value("description").toString();
                     QString icon_name = list[i].toObject().value("weather").toArray().at(0).toObject().value("icon").toString() + ".png";
                     QString icon_path = ":icon/Default/" + icon_name;
@@ -313,7 +334,9 @@ void ForcastWidget::updateWeather()
                     }
 
                     // 提取风速和风向
-                    QString wind = "风: " + QString::number(list[i].toObject().value("wind").toObject().value("speed").toDouble()) + "m/s, " + QString::number(qRound(list[i].toObject().value("wind").toObject().value("deg").toDouble())) + "°";
+                    QString wind = tr("Wind: %1 m/s, %2°")
+                            .arg(list[i].toObject().value("wind").toObject().value("speed").toDouble())
+                            .arg(qRound(list[i].toObject().value("wind").toObject().value("deg").toDouble()));
 
                     log +=     + ", " + date.toString("yyyy-MM-dd HH:mm:ss ddd") + ", " + stemp + ", " + humidity + ","+ weather + ", " + icon_path + ", " + wind + "\n";
 
@@ -326,7 +349,11 @@ void ForcastWidget::updateWeather()
                             labelTemp[0]->setText(weather + " " + stemp);
                             labelDate[0]->setText(today);
 
-                            labelCity->setText(cityTranslations[JO_city.value("name").toString()].toString());
+                            QString cityName = JO_city.value("name").toString();
+                            const QString localizedCity = cityTranslations.value(cityName).toString();
+                            if (!localizedCity.isEmpty())
+                                cityName = localizedCity;
+                            labelCity->setText(cityName);
 
 //                            // 更新新添加的信息
 //                            labelHumidity->setText("湿度: " + humidity);
@@ -340,7 +367,10 @@ void ForcastWidget::updateWeather()
                             labelDate[1]->setText(sdate);
 
                             // 构建显示信息
-                            stip = city + ", " + country + "\n" + weather + "\n" + stemp + "\n" + humidity + "\n" + wind + "\n日升: " + time_sunrise.toString("hh:mm") + "\n日落: " + time_sunset.toString("hh:mm") + "\n刷新：" + currentDateTime.toString("HH:mm:ss");
+                            stip = city + ", " + country + "\n" + weather + "\n" + stemp + "\n" + humidity + "\n" + wind
+                                    + "\n" + tr("Sunrise: %1").arg(time_sunrise.toString("HH:mm"))
+                                    + "\n" + tr("Sunset: %1").arg(time_sunset.toString("HH:mm"))
+                                    + "\n" + tr("Updated: %1").arg(currentDateTime.toString("HH:mm:ss"));
 
                             emit weatherNow(weather, stemp, stip, pixmap);
                             r++;
@@ -355,11 +385,11 @@ void ForcastWidget::updateWeather()
                 }
             } else {
                 // 如果返回的状态码不是200，显示错误信息
-                emit weatherNow("Weather", "Temp", city + ", " + country + "\n" + cod + "\n" + JD.object().value("message").toString(), QPixmap(":icon/na.png"));
+                emit weatherNow(tr("Weather"), tr("Temp"), city + ", " + country + "\n" + cod + "\n" + JD.object().value("message").toString(), QPixmap(":icon/na.png"));
             }
         }else{
             // 如果JSON解析出错，显示原始响应内容
-            emit weatherNow("Weather", "Temp", QString(BA), QPixmap(":icon/na.png"));
+            emit weatherNow(tr("Weather"), tr("Temp"), QString(BA), QPixmap(":icon/na.png"));
         }
 
         // 将日志写入文件

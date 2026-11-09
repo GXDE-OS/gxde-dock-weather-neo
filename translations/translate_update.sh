@@ -1,12 +1,7 @@
 #!/bin/bash
-# this file is used to auto-update .ts file.
+# Refresh the .ts files from all tr() calls in the project sources.
 
-cd $(dirname $0)
+cd "$(dirname "$0")/.." || exit 1
 
-ts_list=$(ls ./*.ts)
-
-for ts in "${ts_list[@]}"
-do
-#    printf "\nprocess ${ts}\n"
-    lupdate ./src -recursive -no-obsolete -ts "${ts}"
-done
+# The .ts files are taken from TRANSLATIONS in weather.pro.
+lupdate weather.pro -no-obsolete

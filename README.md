@@ -39,3 +39,15 @@ Add temperature unit set:
 
 ### 5.0 (2018-12-19)
 * Change API to https://openweathermap.org to support world wide weather forcast.
+
+### Internationalization
+
+All UI strings are written in English and wrapped in `tr()`. Translations are
+`translations/zh_CN.ts` (Chinese) and `translations/en_US.ts` (English). The
+build runs `lrelease` automatically and embeds the `.qm` files into the plugin,
+so installing `libHTYWeather.so` alone is enough. Chinese locales use `zh_CN`;
+all other locales use English. The OpenWeatherMap language, city names and
+weekday names follow the same locale.
+
+* `translations/translate_update.sh` — update the `.ts` files after editing sources
+* `translations/translate_generation.sh` — generate `.qm` files manually for testing

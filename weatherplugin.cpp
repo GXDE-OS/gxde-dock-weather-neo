@@ -13,6 +13,44 @@
 #include <QButtonGroup>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QTranslator>
+#include <QLocale>
+#include <QFile>
+#include <QCoreApplication>
+
+namespace {
+
+// The .qm files are compiled into the plugin's resource by qmake (see weather.pro),
+// so the plugin also works when it is installed as a single .so file.
+void installPluginTranslator()
+{
+    static bool installed = false;
+    if (installed)
+        return;
+    installed = true;
+
+    const QString locale = QLocale::system().name();
+    QStringList candidates;
+    candidates << locale;
+    if (locale.contains(QLatin1Char('_')))
+        candidates << locale.section(QLatin1Char('_'), 0, 0);
+
+    // Sources are written in English, so every non-Chinese locale falls back to it.
+    candidates << (locale.startsWith(QLatin1String("zh"), Qt::CaseInsensitive)
+                       ? QStringLiteral("zh_CN") : QStringLiteral("en_US"));
+
+    QTranslator *translator = new QTranslator(qApp);
+    for (const QString &name : candidates) {
+        const QString path = QStringLiteral(":/HTYWeather/i18n/%1.qm").arg(name);
+        if (QFile::exists(path) && translator->load(path)) {
+            qApp->installTranslator(translator);
+            return;
+        }
+    }
+    delete translator;
+}
+
+}
 
 WeatherPlugin::WeatherPlugin(QObject *parent)
     : QObject(parent),
@@ -20,6 +58,8 @@ WeatherPlugin::WeatherPlugin(QObject *parent)
       m_refershTimer(new QTimer(this)),
       m_settings("deepin", "gxde-dock-HTYWeather")
 {
+    installPluginTranslator();
+
     m_tipsLabel->setObjectName("HTYWeather");
     m_tipsLabel->setStyleSheet("color:white; padding:0px 3px;");
 
@@ -45,7 +85,7 @@ const QString WeatherPlugin::pluginName() const
 
 const QString WeatherPlugin::pluginDisplayName() const
 {
-    return "HTYWeather";
+    return tr("Weather");
 }
 
 void WeatherPlugin::init(PluginProxyInterface *proxyInter)
@@ -111,26 +151,26 @@ const QString WeatherPlugin::itemContextMenu(const QString &itemKey)
 
     QMap<QString, QVariant> about;
     about["itemId"] = "about";
-    about["itemText"] = "关于";
+    about["itemText"] = tr("About");
     about["isActive"] = true;
     items.push_back(about);
 
     QMap<QString, QVariant> set;
     set["itemId"] = "set";
-    set["itemText"] = "设置";
+    set["itemText"] = tr("Settings");
     set["isActive"] = true;
     items.push_back(set);
 
     QMap<QString, QVariant> refresh;
     refresh["itemId"] = "refresh";
-    refresh["itemText"] = "刷新";
+    refresh["itemText"] = tr("Refresh");
     refresh["isActive"] = true;
     items.push_back(refresh);
 
 
     QMap<QString, QVariant> log;
     log["itemId"] = "log";
-    log["itemText"] = "日志";
+    log["itemText"] = tr("Log");
     log["isActive"] = true;
     items.push_back(log);
 
@@ -161,7 +201,13 @@ void WeatherPlugin::invokedMenuItem(const QString &itemKey, const QString &menuI
 
 void WeatherPlugin::MBAbout()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "HTYWeather 5.8", "About\n\nDeepin Linux Dock Weather Plugin.\nAuthor: 海天鹰\nE-mail: sonichy@163.com\nSource: https://github.com/sonichy/WEATHER_DDE_DOCK\nAPI: https://openweathermap.org/forecast5");
+    const QString aboutText = tr("GXDE Dock Weather Plugin") + "\n\n"
+            + tr("Version: %1").arg("5.8") + "\n"
+            + tr("Author: %1").arg("海天鹰") + "\n"
+            + tr("E-mail: %1").arg("sonichy@163.com") + "\n"
+            + tr("Source: %1").arg("https://github.com/sonichy/WEATHER_DDE_DOCK") + "\n"
+            + tr("API: %1").arg("https://openweathermap.org/forecast5");
+    QMessageBox aboutMB(QMessageBox::NoIcon, tr("About HTYWeather"), aboutText);
     aboutMB.setIconPixmap(QPixmap(":/icon/Default/01d.png"));
     aboutMB.exec();
 }
@@ -185,30 +231,30 @@ void WeatherPlugin::showLog()
 void WeatherPlugin::set()
 {
     QDialog *dialog = new QDialog;
-    dialog->setWindowTitle("设置");
+    dialog->setWindowTitle(tr("Settings"));
     dialog->setFixedSize(350, 250);
     QVBoxLayout *vbox = new QVBoxLayout;
 
     // 添加单选按钮组
     QButtonGroup *locationGroup = new QButtonGroup(dialog);
-    QRadioButton *manualRadio = new QRadioButton("手动设置城市");
-    QRadioButton *autoRadio = new QRadioButton("网络定位城市");
+    QRadioButton *manualRadio = new QRadioButton(tr("Set city manually"));
+    QRadioButton *autoRadio = new QRadioButton(tr("Locate city by IP"));
     locationGroup->addButton(manualRadio);
     locationGroup->addButton(autoRadio);
     vbox->addWidget(manualRadio);
     vbox->addWidget(autoRadio);
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    QLabel *label = new QLabel("城市");
+    QLabel *label = new QLabel(tr("City"));
     hbox->addWidget(label);
     QLineEdit *lineEdit_city = new QLineEdit;
-    lineEdit_city->setPlaceholderText("English Only");
+    lineEdit_city->setPlaceholderText(tr("English only"));
     QRegularExpression regExp("[a-zA-Z ]+$");
     QValidator *validator = new QRegularExpressionValidator(regExp, lineEdit_city);
     lineEdit_city->setValidator(validator);
     lineEdit_city->setText(m_settings.value("city","").toString());
     hbox->addWidget(lineEdit_city);
-    label = new QLabel("国家");
+    label = new QLabel(tr("Country"));
     hbox->addWidget(label);
     QComboBox *comboBox_country = new QComboBox;
     QString country_codes = "AF,AX,AL,DZ,AS,AD,AO,AI,AQ,AG,AR,AM,AW,AU,AT,AZ,BS,BH,BD,BB,BY,BE,BZ,BJ,BM,BT,BO,BQ,BA,BW,BV,BR,IO,BN,BG,BF,BI,KH,CM,CA,CV,KY,CF,TD,CL,CN,CX,CC,CO,KM,CD,CG,CK,CR,CI,HR,CU,CW,CY,CZ,DK,DJ,DM,DO,EC,EG,SV,GQ,ER,EE,ET,FK,FO,FJ,FI,FR,GF,PF,TF,GA,GM,GE,DE,GH,GI,GR,GL,GD,GP,GU,GT,GG,GW,GN,GY,HT,HM,VA,HN,HK,HU,IS,IN,ID,IR,IQ,IE,IM,IL,IT,JM,JP,JE,JO,KZ,KE,KI,KP,KR,KW,KG,LA,LV,LB,LS,LR,LY,LI,LT,LU,MO,MK,MG,MW,MY,MV,ML,MT,MH,MQ,MR,MU,YT,MX,FM,MD,MC,MN,ME,MS,MA,MZ,MM,NA,NR,NP,NL,NC,NZ,NI,NG,NE,NU,NF,MP,NO,OM,PK,PW,PS,PA,PG,PY,PE,PH,PN,PL,PT,PR,QA,RE,RO,RU,RW,BL,SH,KN,LC,MF,PM,VC,WS,SM,ST,SA,SN,RS,SC,SL,SG,SX,SK,SI,SB,SO,ZA,GS,SS,ES,LK,SD,SR,SJ,SZ,SE,CH,SY,TW,TJ,TZ,TH,TL,TG,TK,TO,TT,TN,TR,TM,TC,TV,UG,UA,AE,GB,UM,US,UY,UZ,VU,VE,VN,VG,VI,WF,EH,YE,ZM,ZW";
@@ -234,14 +280,14 @@ void WeatherPlugin::set()
     comboBox_country->setEnabled(isManual);
 
     hbox = new QHBoxLayout;
-    label = new QLabel("在  <a style='color:white;' href='https://openweathermap.org'>openweathermap.org</a>  搜索你的城市和国家");
+    label = new QLabel(tr("Search your city and country in <a style='color:white;' href='https://openweathermap.org'>openweathermap.org</a>"));
     connect(label, &QLabel::linkActivated, [](QString url){
         QDesktopServices::openUrl(QUrl(url));
     });
     hbox->addWidget(label);
     vbox->addLayout(hbox);
     hbox = new QHBoxLayout;
-    label = new QLabel("图标主题 (PNG only)");
+    label = new QLabel(tr("Icon theme (PNG only)"));
     hbox->addWidget(label);
     QComboBox *comboBox_iconTheme = new QComboBox;
     comboBox_iconTheme->addItem(QIcon(":icon/Default/01d.png"), "Default");
@@ -249,14 +295,14 @@ void WeatherPlugin::set()
     comboBox_iconTheme->addItem(QIcon(":icon/Flat/01d.png"), "Flat");
     QString iconTheme = m_settings.value("IconTheme","").toString();
     if(iconTheme == "" || !iconTheme.startsWith("/")){
-        comboBox_iconTheme->addItem(QIcon(":icon/custom.png"),"Custom");
+        comboBox_iconTheme->addItem(QIcon(":icon/custom.png"), tr("Custom"));
     }else{
         comboBox_iconTheme->addItem(QIcon(iconTheme + "/01d.png"), iconTheme);
     }
     comboBox_iconTheme->setCurrentText(iconTheme);
     connect(comboBox_iconTheme, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [=](int index){
         if(index == 3){
-            QString siconTheme = QFileDialog::getExistingDirectory(dialog, "Icon Theme", iconTheme);
+            QString siconTheme = QFileDialog::getExistingDirectory(dialog, tr("Select icon theme"), iconTheme);
             if(siconTheme != ""){
                 QString icon_path = siconTheme + "/01d.png";
                 QFile file(icon_path);
@@ -264,7 +310,7 @@ void WeatherPlugin::set()
                     comboBox_iconTheme->setItemText(index, siconTheme);
                     comboBox_iconTheme->setItemIcon(index, QIcon(icon_path));
                 }else{
-                    QMessageBox MB(QMessageBox::Critical, "Error", icon_path + " does not exists !");
+                    QMessageBox MB(QMessageBox::Critical, tr("Error"), tr("The icon file %1 does not exist!").arg(icon_path));
                     MB.exec();
                 }
             }
@@ -273,7 +319,7 @@ void WeatherPlugin::set()
     hbox->addWidget(comboBox_iconTheme);
     vbox->addLayout(hbox);
     hbox = new QHBoxLayout;
-    label = new QLabel("温度单位 ");
+    label = new QLabel(tr("Temperature unit"));
     hbox->addWidget(label);
     QComboBox *comboBox_TU = new QComboBox;
     comboBox_TU->addItem("°C");
@@ -282,8 +328,8 @@ void WeatherPlugin::set()
     hbox->addWidget(comboBox_TU);
     vbox->addLayout(hbox);
 
-    QPushButton *pushButton_confirm = new QPushButton("确认");
-    QPushButton *pushButton_cancel = new QPushButton("取消");
+    QPushButton *pushButton_confirm = new QPushButton(tr("OK"));
+    QPushButton *pushButton_cancel = new QPushButton(tr("Cancel"));
     connect(pushButton_confirm, SIGNAL(clicked()), dialog, SLOT(accept()));
     connect(pushButton_cancel, SIGNAL(clicked()), dialog, SLOT(reject()));
     hbox = new QHBoxLayout;
@@ -357,4 +403,3 @@ void WeatherPlugin::autoLocateCity()
         file.close();
     }
 }
-
