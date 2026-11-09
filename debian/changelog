@@ -1,7 +1,8 @@
-gxde-dock-weather (6.5.0) UNRELEASED; urgency=low
+gxde-dock-weather (6.5.1) UNRELEASED; urgency=low
 
   * 重新构建
   * 调整依赖为 gxde-dock
   * 迁移至 Qt6
+  * feat: 新增英语翻译(https://github.com/GXDE-OS/gxde-dock-weather-neo/issues/1 )
 
- -- gfdgd_xi <3025613752@qq.com>  Wed, 22 Jul 2026 21:19:30 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 09 Nov 2026 21:40:11 +0800
